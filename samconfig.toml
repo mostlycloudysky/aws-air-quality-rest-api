@@ -1,0 +1,12 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "aws-air-quality-rest-apiv2"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-2epf14tnni2"
+s3_prefix = "aws-air-quality-rest-apiv2"
+region = "us-east-2"
+profile = "dev"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
