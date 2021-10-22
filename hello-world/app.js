@@ -34,7 +34,7 @@ exports.lambdaHandler = async (event, context) => {
             throw err
         } else {
             if ('SecretString' in data) {
-                secret = data.SecretString;
+                secret = JSON.parse(data.SecretString);
             } else {
                 // @ts-ignore
                 let buff = new Buffer(data.SecretBinary, 'base64');
