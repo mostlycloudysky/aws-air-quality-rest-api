@@ -9,6 +9,10 @@ Description: >
 Globals:
   Function:
     Timeout: 3
+  Api:
+    Cors:
+      AllowOrigin: "'*'"
+      AllowHeaders: "'Accept,Content-Type'"
 
 Resources:
   HelloWorldFunction:
@@ -22,6 +26,9 @@ Resources:
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:samplesecret-s8gsXa"
+        - SESCrudPolicy: { IdentityName: Sandeep.Yaramchitti }
+        - SESCrudPolicy: { IdentityName: ysandeepkumar88@gmail.com }
+
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api

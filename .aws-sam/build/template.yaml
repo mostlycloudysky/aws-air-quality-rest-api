@@ -8,6 +8,10 @@ Description: 'aws-air-quality-rest-api
 Globals:
   Function:
     Timeout: 3
+  Api:
+    Cors:
+      AllowOrigin: '''*'''
+      AllowHeaders: '''Accept,Content-Type'''
 Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
@@ -21,6 +25,10 @@ Resources:
       - AWSSecretsManagerGetSecretValuePolicy:
           SecretArn:
             Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:samplesecret-s8gsXa
+      - SESCrudPolicy:
+          IdentityName: Sandeep.Yaramchitti
+      - SESCrudPolicy:
+          IdentityName: ysandeepkumar88@gmail.com
       Events:
         HelloWorld:
           Type: Api

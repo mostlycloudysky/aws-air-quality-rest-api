@@ -3,6 +3,9 @@ const aws = require('aws-sdk')
 const client = new aws.SecretsManager({
     region: 'us-east-2'
 });
+
+const sesClient = new aws.SES()
+
 let secret, decodedBinarySecret;
 const url = 'http://checkip.amazonaws.com/';
 let response;
@@ -21,6 +24,9 @@ let response;
  */
 exports.lambdaHandler = async (event, context) => {
 
+
+
+
     client.getSecretValue({
         SecretId: 'samplesecret'
     }, function(err, data) {
@@ -30,6 +36,7 @@ exports.lambdaHandler = async (event, context) => {
             if ('SecretString' in data) {
                 secret = data.SecretString;
             } else {
+                // @ts-ignore
                 let buff = new Buffer(data.SecretBinary, 'base64');
                 decodedBinarySecret = buff.toString('ascii');
             }
@@ -44,9 +51,31 @@ exports.lambdaHandler = async (event, context) => {
                 message: 'hello world',
                 location: ret.data.trim(),
                 test: 'test',
-                code: JSON.parse(secret)
+                code: secret
             })
         }
+
+        const emailParams = {
+            Source: 'ysandeepkumar88@gmail.com', 
+            Destination: {
+              ToAddresses: ['ysandeepkumar88@gmail.com'], 
+            },
+            Message: {
+              Body: {
+                Text: {
+                  Charset: 'UTF-8',
+                  Data: `Test`,
+                },
+              },
+              Subject: {
+                Charset: 'UTF-8',
+                Data: 'AWS SES - email',
+              },
+            },
+        };
+    
+        await sesClient.sendEmail(emailParams).promise()
+        
     } catch (err) {
         console.log(err);
         return err;
