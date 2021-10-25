@@ -26,22 +26,27 @@ exports.lambdaHandler = async (event, context) => {
 
 
 
-
-    client.getSecretValue({
+    const result = await client.getSecretValue({
         SecretId: 'samplesecret'
-    }, function(err, data) {
-        if (err) {
-            throw err
-        } else {
-            if ('SecretString' in data) {
-                secret = JSON.parse(data.SecretString);
-            } else {
-                // @ts-ignore
-                let buff = new Buffer(data.SecretBinary, 'base64');
-                decodedBinarySecret = buff.toString('ascii');
-            }
-        }
     })
+    .promise()
+
+
+    // const secretResult = client.getSecretValue({
+    //     SecretId: 'samplesecret'
+    // }, function(err, data) {
+    //     if (err) {
+    //         throw err
+    //     } else {
+    //         if ('SecretString' in data) {
+    //             secret = JSON.parse(data.SecretString);
+    //         } else {
+    //             // @ts-ignore
+    //             let buff = new Buffer(data.SecretBinary, 'base64');
+    //             decodedBinarySecret = buff.toString('ascii');
+    //         }
+    //     }
+    // }).promise()
 
     try {
         const ret = await axios(url);
@@ -51,7 +56,7 @@ exports.lambdaHandler = async (event, context) => {
                 message: 'hello world',
                 location: ret.data.trim(),
                 test: 'test',
-                code: secret
+                code: result.SecretString
             })
         }
 
