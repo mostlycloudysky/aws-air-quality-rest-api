@@ -34,26 +34,16 @@ exports.lambdaHandler = async (event, context) => {
 
     const airAPI = JSON.parse(result.SecretString)
 
-    const config = {
-      method: 'get',
-      url: `http://api.airvisual.com/v2/countries?key=${airAPI.AIR_QUALITY_API_KEY}`,
-      headers: { 
-        ...data.getHeaders()
-      },
-      data : data
-    };
-
     try {
-        const ret = await axios(url);
+        const ret = await axios(`http://api.airvisual.com/v2/countries?key=${airAPI.AIR_QUALITY_API_KEY}`);
         response = {
             'statusCode': 200,
             'body': JSON.stringify({
-                message: 'hello world',
-                location: ret.data.trim(),
-                test: 'test',
-                code: airAPI.AIR_QUALITY_API_KEY
+                location: ret.data,
             })
         }
+
+        console.log(response)
 
         const emailParams = {
             Source: 'ysandeepkumar88@gmail.com', 
@@ -73,8 +63,8 @@ exports.lambdaHandler = async (event, context) => {
               },
             },
         };
-    
-        await sesClient.sendEmail(emailParams).promise()
+        
+        // await sesClient.sendEmail(emailParams).promise()
         
     } catch (err) {
         console.log(err);
@@ -82,4 +72,5 @@ exports.lambdaHandler = async (event, context) => {
     }
 
     return response
+
 };

@@ -32,43 +32,18 @@ exports.lambdaHandler = async (event, context) => {
         SecretId: 'airqualityapi'
     }).promise()
 
-    // let config = {
-    //   method: 'get',
-    //   url: 'http://api.airvisual.com/v2/countries?key={{YOUR_API_KEY}}',
-    //   headers: { 
-    //     ...data.getHeaders()
-    //   },
-    //   data : data
-    // };
-
-    // const secretResult = client.getSecretValue({
-    //     SecretId: 'samplesecret'
-    // }, function(err, data) {
-    //     if (err) {
-    //         throw err
-    //     } else {
-    //         if ('SecretString' in data) {
-    //             secret = JSON.parse(data.SecretString);
-    //         } else {
-    //             // @ts-ignore
-    //             let buff = new Buffer(data.SecretBinary, 'base64');
-    //             decodedBinarySecret = buff.toString('ascii');
-    //         }
-    //     }
-    // }).promise()
     const airAPI = JSON.parse(result.SecretString)
 
     try {
-        const ret = await axios(url);
+        const ret = await axios(`http://api.airvisual.com/v2/countries?key=${airAPI.AIR_QUALITY_API_KEY}`);
         response = {
             'statusCode': 200,
             'body': JSON.stringify({
-                message: 'hello world',
-                location: ret.data.trim(),
-                test: 'test',
-                code: airAPI.AIR_QUALITY_API_KEY
+                location: ret.data,
             })
         }
+
+        console.log(response)
 
         const emailParams = {
             Source: 'ysandeepkumar88@gmail.com', 
@@ -88,8 +63,8 @@ exports.lambdaHandler = async (event, context) => {
               },
             },
         };
-    
-        await sesClient.sendEmail(emailParams).promise()
+        
+        // await sesClient.sendEmail(emailParams).promise()
         
     } catch (err) {
         console.log(err);
@@ -97,4 +72,5 @@ exports.lambdaHandler = async (event, context) => {
     }
 
     return response
+
 };
