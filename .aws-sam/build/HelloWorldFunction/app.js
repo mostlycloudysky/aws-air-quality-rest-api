@@ -1,12 +1,14 @@
+// @ts-nocheck
 const axios = require('axios')
 const aws = require('aws-sdk')
+let FormData = require('form-data');
+let data = new FormData();
 const client = new aws.SecretsManager({
     region: 'us-east-2'
 });
 
 const sesClient = new aws.SES()
 
-let secret, decodedBinarySecret;
 const url = 'http://checkip.amazonaws.com/';
 let response;
 
@@ -27,10 +29,17 @@ exports.lambdaHandler = async (event, context) => {
 
 
     const result = await client.getSecretValue({
-        SecretId: 'samplesecret'
-    })
-    .promise()
+        SecretId: 'airqualityapi'
+    }).promise()
 
+    // let config = {
+    //   method: 'get',
+    //   url: 'http://api.airvisual.com/v2/countries?key={{YOUR_API_KEY}}',
+    //   headers: { 
+    //     ...data.getHeaders()
+    //   },
+    //   data : data
+    // };
 
     // const secretResult = client.getSecretValue({
     //     SecretId: 'samplesecret'
@@ -47,6 +56,7 @@ exports.lambdaHandler = async (event, context) => {
     //         }
     //     }
     // }).promise()
+    const airAPI = JSON.parse(result.SecretString)
 
     try {
         const ret = await axios(url);
@@ -56,7 +66,7 @@ exports.lambdaHandler = async (event, context) => {
                 message: 'hello world',
                 location: ret.data.trim(),
                 test: 'test',
-                code: result.SecretString
+                code: airAPI.AIR_QUALITY_API_KEY
             })
         }
 

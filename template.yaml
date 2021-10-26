@@ -36,7 +36,7 @@ Resources:
         - x86_64
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:samplesecret-s8gsXa"
+            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:airqualityapi-ktJuIB"
         - SESCrudPolicy: { IdentityName: Sandeep.Yaramchitti }
         - SESCrudPolicy: { IdentityName: ysandeepkumar88@gmail.com }
 
@@ -60,3 +60,6 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
+
+
+  
