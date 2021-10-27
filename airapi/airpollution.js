@@ -19,7 +19,9 @@ exports.lambdaHandler = async (event, context) => {
   console.info('received:', event);
  
   // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
-  const city = event.pathParameters.city;
+  const city = event.queryStringParameters.city
+  const state = event.queryStringParameters.state
+  const country = event.queryStringParameters.country
 
     const mapIDsecret = await client.getSecretValue({
         SecretId: 'mapID9812'
@@ -34,12 +36,16 @@ exports.lambdaHandler = async (event, context) => {
   const airQualityKey = JSON.parse(airqualityIDsecret.SecretString)
 
     try {
-        const airQualityResponse = await axios(`http://api.airvisual.com/v2/city?city=${city}&state=Connecticut&country=USA&key=${airQualityKey.airvisualAPI}`);
+        const airQualityResponse = await axios(`http://api.airvisual.com/v2/city?city=${city}&state=${state}&country=${country}&key=${airQualityKey.airvisualAPI}`);
+
+        const airQualityLatandLong = airQualityResponse.data.data.location.coordinates
+
+        const airPollutionResponse = await axios(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${airQualityLatandLong[0]}&lon=${airQualityLatandLong[1]}&appid=${openmapKey.weathermapappID}`)
         response = {
             'statusCode': 200,
             'body': JSON.stringify({
                 airQuality: airQualityResponse.data,
-                airKey: airQualityKey
+                airpollution: airPollutionResponse.data
             })
         }
 

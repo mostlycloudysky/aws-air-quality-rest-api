@@ -72,8 +72,18 @@ Resources:
         AirPollution:
           Type: Api
           Properties:
-            Path: /airpollution/{city}
+            Path: /airpollution
             Method: get
+            RequestParameters:
+            - method.request.querystring.city:
+                Required: true
+                Caching: true
+            - method.request.querystring.state:
+                Required: true
+                Caching: true
+            - method.request.querystring.country:
+                Required: true
+                Caching: true
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
