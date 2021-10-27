@@ -31,6 +31,8 @@ Resources:
       Runtime: nodejs14.x
       Architectures:
       - x86_64
+      MemorySize: 128
+      Timeout: 100
       Policies:
       - AWSSecretsManagerGetSecretValuePolicy:
           SecretArn:
@@ -43,13 +45,85 @@ Resources:
         HelloWorld:
           Type: Api
           Properties:
-            Path: /hello
+            Path: /airquality
+            Method: get
+  AirPollutionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: AirPollutionFunction
+      Handler: airpollution.lambdaHandler
+      Runtime: nodejs14.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:air9812-TCPfmO
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:mapID9812-sulGgf
+      - SESCrudPolicy:
+          IdentityName: Sandeep.Yaramchitti
+      - SESCrudPolicy:
+          IdentityName: ysandeepkumar88@gmail.com
+      Events:
+        AirPollution:
+          Type: Api
+          Properties:
+            Path: /airpollution
+            Method: get
+            RequestParameters:
+            - method.request.querystring.city:
+                Required: true
+                Caching: true
+            - method.request.querystring.state:
+                Required: true
+                Caching: true
+            - method.request.querystring.country:
+                Required: true
+                Caching: true
+  AirPollutionNearestCityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: AirPollutionNearestCityFunction
+      Handler: nearestCityAirPollution.lambdaHandler
+      Runtime: nodejs14.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:air9812-TCPfmO
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:mapID9812-sulGgf
+      - SESCrudPolicy:
+          IdentityName: Sandeep.Yaramchitti
+      - SESCrudPolicy:
+          IdentityName: ysandeepkumar88@gmail.com
+      Events:
+        AirPollution:
+          Type: Api
+          Properties:
+            Path: /nearestCity
             Method: get
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value:
-      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}/hello/
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}/airquality/
+  AirPollutionApi:
+    Description: API Gateway endpoint URL for Air Pollution Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}/airpollution/
+  AirPollutionNearestCityApi:
+    Description: API Gateway endpoint URL for Air Pollution Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}//nearestCity/
   HelloWorldFunction:
     Description: Hello World Lambda Function ARN
     Value:

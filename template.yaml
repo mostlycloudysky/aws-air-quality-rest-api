@@ -29,11 +29,13 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: hello-world/
+      CodeUri: airapi/
       Handler: app.lambdaHandler
       Runtime: nodejs14.x
       Architectures:
         - x86_64
+      MemorySize: 128
+      Timeout: 100
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:airqualityapi-ktJuIB"
@@ -44,8 +46,78 @@ Resources:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
+            Path: /airquality
             Method: get
+
+  AirPollutionFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: airapi/
+      Handler: airpollution.lambdaHandler
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:air9812-TCPfmO"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:mapID9812-sulGgf"
+        - SESCrudPolicy: { IdentityName: Sandeep.Yaramchitti }
+        - SESCrudPolicy: { IdentityName: ysandeepkumar88@gmail.com }
+
+      Events:
+        AirPollution:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /airpollution
+            Method: get
+            RequestParameters:
+              - method.request.querystring.city:
+                  Required: true
+                  Caching: true
+              - method.request.querystring.state:
+                  Required: true
+                  Caching: true
+              - method.request.querystring.country:
+                  Required: true
+                  Caching: true
+
+  AirPollutionNearestCityFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: airapi/
+      Handler: nearestCityAirPollution.lambdaHandler
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:air9812-TCPfmO"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:mapID9812-sulGgf"
+        - SESCrudPolicy: { IdentityName: Sandeep.Yaramchitti }
+        - SESCrudPolicy: { IdentityName: ysandeepkumar88@gmail.com }
+
+      Events:
+        AirPollution:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /nearestCity
+            Method: get
+            # RequestParameters:
+            #   - method.request.querystring.city:
+            #       Required: true
+            #       Caching: true
+            #   - method.request.querystring.state:
+            #       Required: true
+            #       Caching: true
+            #   - method.request.querystring.country:
+            #       Required: true
+            #       Caching: true
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -53,7 +125,13 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}/airquality/"
+  AirPollutionApi:
+    Description: "API Gateway endpoint URL for Air Pollution Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}/airpollution/"
+  AirPollutionNearestCityApi:
+    Description: "API Gateway endpoint URL for Air Pollution Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stagename}//nearestCity/"
   HelloWorldFunction:
     Description: "Hello World Lambda Function ARN"
     Value: !GetAtt HelloWorldFunction.Arn
