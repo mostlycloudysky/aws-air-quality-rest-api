@@ -1,8 +1,6 @@
 // @ts-nocheck
 const axios = require('axios')
 const aws = require('aws-sdk')
-let FormData = require('form-data');
-let data = new FormData();
 const client = new aws.SecretsManager({
     region: 'us-east-2'
 });
@@ -12,34 +10,36 @@ const sesClient = new aws.SES()
 const url = 'http://checkip.amazonaws.com/';
 let response;
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- * 
- */
 exports.lambdaHandler = async (event, context) => {
 
+  if (event.httpMethod !== 'GET') {
+    throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
+  }
+  // All log statements are written to CloudWatch
+  console.info('received:', event);
+ 
+  // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
+  const city = event.pathParameters.city;
 
-
-    const result = await client.getSecretValue({
-        SecretId: 'airqualityapi'
+    const mapIDsecret = await client.getSecretValue({
+        SecretId: 'mapID9812'
     }).promise()
 
-    const airAPI = JSON.parse(result.SecretString)
+    const openmapKey = JSON.parse(mapIDsecret.SecretString)
+
+    const airqualityIDsecret = await client.getSecretValue({
+      SecretId: 'air9812'
+    }).promise()
+
+  const airQualityKey = JSON.parse(airqualityIDsecret.SecretString)
 
     try {
-        const ret = await axios(`http://api.airvisual.com/v2/countries?key=${airAPI.AIR_QUALITY_API_KEY}`);
+        const airQualityResponse = await axios(`http://api.airvisual.com/v2/city?city=${city}&state=Connecticut&country=USA&key=${airQualityKey.airvisualAPI}`);
         response = {
             'statusCode': 200,
             'body': JSON.stringify({
-                location: ret.data,
+                airQuality: airQualityResponse.data,
+                airKey: airQualityKey
             })
         }
 

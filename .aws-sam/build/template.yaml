@@ -31,6 +31,8 @@ Resources:
       Runtime: nodejs14.x
       Architectures:
       - x86_64
+      MemorySize: 128
+      Timeout: 100
       Policies:
       - AWSSecretsManagerGetSecretValuePolicy:
           SecretArn:
@@ -53,19 +55,24 @@ Resources:
       Runtime: nodejs14.x
       Architectures:
       - x86_64
+      MemorySize: 128
+      Timeout: 100
       Policies:
       - AWSSecretsManagerGetSecretValuePolicy:
           SecretArn:
-            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:airqualityapi-ktJuIB
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:air9812-TCPfmO
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:mapID9812-sulGgf
       - SESCrudPolicy:
           IdentityName: Sandeep.Yaramchitti
       - SESCrudPolicy:
           IdentityName: ysandeepkumar88@gmail.com
       Events:
-        HelloWorld:
+        AirPollution:
           Type: Api
           Properties:
-            Path: /airpollution
+            Path: /airpollution/{city}
             Method: get
 Outputs:
   HelloWorldApi:
